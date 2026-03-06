@@ -19,7 +19,7 @@ namespace Gestao_Escala.Controller
         [HttpGet]
         public async Task<ActionResult<List<Escala>>> Get()
         {
-            return await _context.Escala.Include(e => e.Motorista).ToListAsync();
+            return await _context.Escala.ToListAsync();
         }
 
         [HttpGet("{id}")]
