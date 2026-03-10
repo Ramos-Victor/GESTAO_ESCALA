@@ -1,73 +1,77 @@
-using Gestao_Escala.Data;
 using Gestao_Escala.Models;
+using Gestao_Escala.Services; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
+using Gestao_Escala.Domain.Interfaces;
 namespace Gestao_Escala.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
     public class EscalasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IEscalaService _escalaService;
 
-        public EscalasController(AppDbContext context)
+        public EscalasController(IEscalaService escalaService)
         {
-            _context = context;
+            _escalaService = escalaService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Escala>>> Get()
+        public async Task<ActionResult<IEnumerable<Escala>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
-            return await _context.Escala.ToListAsync();
+            var escalas = await _escalaService.ListarTudoAsync(page, pageSize);
+            return Ok(escalas);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Escala>> GetPorId(int id)
         {
-            var escala = await _context.Escala.FindAsync(id);
+            var escala = await _escalaService.ObterPorIdAsync(id);
 
             if (escala == null)
             {
-                return NotFound();
+                return NotFound("Escala não encontrada.");
             }
 
-            return escala;
+            return Ok(escala);
         }
 
         [HttpPost]
         public async Task<ActionResult<Escala>> Post(Escala escala)
         {
-            _context.Escala.Add(escala);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetPorId), new { id = escala.Id}, escala);
+            try
+            {
+                var novaEscala = await _escalaService.CriarEscalaAsync(escala);
+                return CreatedAtAction(nameof(GetPorId), new { id = novaEscala.Id }, novaEscala);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Escala escala)
         {
-            if (id != escala.Id)
+            if (id != escala.Id) return BadRequest("ID inconsistente.");
+
+            try
             {
-                return BadRequest();
+                await _escalaService.AtualizarEscalaAsync(escala);
+                return NoContent();
             }
-
-            _context.Entry(escala).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var produto = await _context.Escala.FindAsync(id);
-
-            if (produto == null)
+            var removido = await _escalaService.DeletarEscalaAsync(id);
+            
+            if (!removido)
                 return NotFound();
-
-            _context.Escala.Remove(produto);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
