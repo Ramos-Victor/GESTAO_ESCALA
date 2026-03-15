@@ -16,6 +16,7 @@ namespace Gestao_Escala.Models
         public TimeOnly InicioIntervalo { get; set; }
         public TimeOnly FimIntervalo { get; set; }
         public TipoJornada TipoJornada { get; set; }
+        public bool Status { get; set; } = true;
 
         public int? MotoristaId { get; set; }
 
