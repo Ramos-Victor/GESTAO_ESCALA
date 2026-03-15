@@ -64,7 +64,7 @@ namespace Gestao_Escala.Services
             var escala = await _context.Escala.FindAsync(id);
             if (escala == null) return false;
 
-            _context.Escala.Remove(escala);
+            escala.Status = false;
             await _context.SaveChangesAsync();
             return true;
         }

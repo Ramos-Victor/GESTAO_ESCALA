@@ -8,5 +8,6 @@ namespace Gestao_Escala.Domain.Interfaces
         Task<Motorista?> ObterPorIdAsync(int id);
         Task<Motorista> CriarMotoristaAsync(Motorista motorista);
         Task AtualizarMotoristaAsync(Motorista motorista);
+        Task<bool> DeletarMotoristaAsync(int id);
     }
 }

@@ -46,6 +46,16 @@ namespace Gestao_Escala.Services
             }
         }
 
+        public async Task<bool> DeletarMotoristaAsync (int id)
+        {
+            var motorista = await _context.Motorista.FindAsync(id);
+            if (motorista == null) return false;
+
+            motorista.Status = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         private async Task<bool> MotoristaExiste(int id)
         {
             return await _context.Escala.AnyAsync(e => e.Id == id);
