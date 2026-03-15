@@ -2,6 +2,7 @@ using Gestao_Escala.Data;
 using Gestao_Escala.Models;
 using Microsoft.EntityFrameworkCore;
 using Gestao_Escala.Domain.Interfaces;
+
 namespace Gestao_Escala.Services
 {
     public class EscalaService : IEscalaService
@@ -13,15 +14,29 @@ namespace Gestao_Escala.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Escala>> ListarTudoAsync(int page, int pageSize)
+        public async Task<PaginacaoResultado<Escala>> ListarTudoAsync(int page, int pageSize)
         {
-            return await _context.Escala
-                .Include(e => e.Motorista)
-                .AsNoTracking()
-                .OrderBy(e => e.Data)
+            page = Math.Max(1, page);
+
+            var query = _context.Escala.Where(e => e.Status == true);
+            
+            var totalRegistros = await query.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
+            
+            page = Math.Min(page, Math.Max(1, totalPaginas));
+
+            var dados = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
+            return new PaginacaoResultado<Escala>
+            {
+                Dados = dados,
+                PaginaAtual = page,
+                TotalPaginas = totalPaginas,
+                TotalRegistros = totalRegistros
+            };
         }
 
         public async Task<Escala?> ObterPorIdAsync(int id)

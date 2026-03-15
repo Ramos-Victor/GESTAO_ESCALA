@@ -1,6 +1,5 @@
 using Gestao_Escala.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Gestao_Escala.Domain.Interfaces;
 
 namespace Gestao_Escala.Controller
@@ -76,7 +75,7 @@ namespace Gestao_Escala.Controller
 
             if(!removido)
                 return NotFound();
-                
+
             return NoContent();
         }
     }
