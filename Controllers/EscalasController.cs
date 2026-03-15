@@ -1,5 +1,4 @@
-using Gestao_Escala.Models;
-using Gestao_Escala.Services; 
+using Gestao_Escala.Models; 
 using Microsoft.AspNetCore.Mvc;
 using Gestao_Escala.Domain.Interfaces;
 namespace Gestao_Escala.Controller

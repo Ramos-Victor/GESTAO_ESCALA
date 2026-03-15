@@ -1,7 +1,7 @@
-using Gestao_Escala.Data;
 using Gestao_Escala.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Gestao_Escala.Domain.Interfaces;
 
 namespace Gestao_Escala.Controller
 {
@@ -9,39 +9,45 @@ namespace Gestao_Escala.Controller
     [Route("api/[controller]")]
     public class MotoristasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMotoristaService _motoristaService;
 
-        public MotoristasController(AppDbContext context)
+        public MotoristasController(IMotoristaService motoristaService)
         {
-            _context = context;
+            _motoristaService = motoristaService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Motorista>>> Get()
+        public async Task<ActionResult<IEnumerable<Motorista>>> Get([FromQuery] int page =1, [FromQuery] int pageSize = 20)
         {
-            return await _context.Motorista.ToListAsync();
+            var motoristas = await _motoristaService.ListarTudoAsync(page, pageSize);
+            return Ok(motoristas);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Motorista>> GetPorId(int id)
         {
-            var motorista = await _context.Motorista.FindAsync(id);
+            var motorista = await _motoristaService.ObterPorIdAsync(id);
 
             if (motorista == null)
             {
-                return NotFound();
+                return NotFound("Escala não encontrada.");
             }
             
-            return motorista;
+            return Ok(motorista);
         }
 
         [HttpPost]
         public async Task<ActionResult<Motorista>> Post(Motorista motorista)
         {
-            _context.Motorista.Add(motorista);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetPorId), new { id = motorista.Id}, motorista);
+            try
+            {
+                var novoMotorista = await _motoristaService.CriarMotoristaAsync(motorista);
+                return CreatedAtAction(nameof(GetPorId), new {id = novoMotorista.Id}, novoMotorista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -49,33 +55,28 @@ namespace Gestao_Escala.Controller
         {
             if (id != motorista.Id)
             {
-                return BadRequest();
+                return BadRequest("ID inconsistente");
             }
 
-            var existe = await _context.Motorista.AsNoTracking()
-                                                 .AnyAsync(m => m.Id == id);
-            if (!existe)
-                return NotFound();
-
-            _context.Entry(motorista).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            try
+            {
+                await _motoristaService.AtualizarMotoristaAsync(motorista);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var motorista = await _context.Motorista.FindAsync(id);
+            var removido = await _motoristaService.DeletarMotoristaAsync(id);
 
-            if (motorista == null)
-            {
+            if(!removido)
                 return NotFound();
-            }
-
-            motorista.Status = false;
-            await _context.SaveChangesAsync();
-
+                
             return NoContent();
         }
     }
