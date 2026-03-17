@@ -10,7 +10,6 @@ namespace Gestao_Escala.Models
     public class Escala
     {
         public int Id { get; set; }
-        public DateOnly Data { get; set; }
         public TimeOnly HoraInicio { get; set; }
         public TimeOnly HoraFinal { get; set; }
         public TimeOnly InicioIntervalo { get; set; }
@@ -18,9 +17,7 @@ namespace Gestao_Escala.Models
         public TipoJornada TipoJornada { get; set; }
         public bool Status { get; set; } = true;
 
-        public int? MotoristaId { get; set; }
-
-        public Motorista? Motorista { get; set; }
+        public ICollection<VigenciaEscala> Vigencias { get; set; } = new List<VigenciaEscala>();
         
     }
 }

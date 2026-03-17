@@ -29,7 +29,7 @@ namespace Gestao_Escala.Controller
 
             if (motorista == null)
             {
-                return NotFound("Escala não encontrada.");
+                return NotFound("Motorista não encontrado.");
             }
             
             return Ok(motorista);

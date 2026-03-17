@@ -18,7 +18,7 @@ namespace Gestao_Escala.Services
         {
             page = Math.Max(1, page);
 
-            var query = _context.Escala.Where(e => e.Status == true);
+            var query = _context.Escala.Include(e => e.Motorista).AsNoTracking().Where(e => e.Status == true).OrderBy(e=> e.Data);
             
             var totalRegistros = await query.CountAsync();
             var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
@@ -42,7 +42,6 @@ namespace Gestao_Escala.Services
         public async Task<Escala?> ObterPorIdAsync(int id)
         {
             return await _context.Escala
-                .Include(e => e.Motorista)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -107,11 +106,6 @@ namespace Gestao_Escala.Services
                 if (sobreposto)
                     throw new Exception("Este motorista já possui uma escala agendada para este horário.");
             }
-        }
-
-        private async Task<bool> EscalaExiste(int id)
-        {
-            return await _context.Escala.AnyAsync(e => e.Id == id);
         }
     }
 }

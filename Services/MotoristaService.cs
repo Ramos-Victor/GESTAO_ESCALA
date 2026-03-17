@@ -13,9 +13,24 @@ namespace Gestao_Escala.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Motorista>> ListarTudoAsync(int page, int pageSize)
+        public async Task<PaginacaoResultado<Motorista>> ListarTudoAsync(int page, int pageSize)
         {
-            return await _context.Motorista.AsNoTracking().OrderBy(e=> e.Id).Skip((page-1) * pageSize).Take(pageSize).ToListAsync();
+            page = Math.Max(1,page);
+
+            var query = _context.Motorista.Where(e=> e.Status == true).OrderBy(e=> e.Id);
+
+            var totalRegistros = await query.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalRegistros/ (double)pageSize);
+
+            var dados = await query.Skip((page -1) * pageSize).Take(pageSize).ToListAsync();
+
+            return new PaginacaoResultado<Motorista>
+            {
+                Dados = dados,
+                PaginaAtual = page,
+                TotalPaginas = totalPaginas,
+                TotalRegistros = totalRegistros
+            };
         }
 
         public async Task<Motorista?> ObterPorIdAsync(int id)
