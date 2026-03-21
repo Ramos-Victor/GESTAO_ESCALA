@@ -1,6 +1,6 @@
 namespace Gestao_Escala.Models
 {
-    public class VigenciaEscala
+    public class Vigencia
     {
         public int Id { get; set;}
         public DateOnly DataInicio { get; set; }

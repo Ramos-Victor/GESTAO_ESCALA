@@ -17,7 +17,7 @@ namespace Gestao_Escala.Models
         public TipoJornada TipoJornada { get; set; }
         public bool Status { get; set; } = true;
 
-        public ICollection<VigenciaEscala> Vigencias { get; set; } = new List<VigenciaEscala>();
+        public ICollection<Vigencia> Vigencias { get; set; } = new List<Vigencia>();
         
     }
 }
