@@ -12,5 +12,7 @@ namespace Gestao_Escala.Data
        
         public DbSet<Motorista> Motorista { get; set; }
         public DbSet<Escala> Escala { get; set; }
+        public DbSet<VigenciaEscala> VigenciaEscala { get; set; }
+        public DbSet<VigenciaMotorista> VigenciaMotorista { get; set; }
     }   
 }
