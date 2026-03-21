@@ -18,7 +18,7 @@ namespace Gestao_Escala.Services
         {
             page = Math.Max(1, page);
 
-            var query = _context.Escala.Include(e => e.Motorista).AsNoTracking().Where(e => e.Status == true).OrderBy(e=> e.Data);
+            var query = _context.Escala.AsNoTracking().Where(e => e.Status == true).OrderBy(e=> e.Id);
             
             var totalRegistros = await query.CountAsync();
             var totalPaginas = (int)Math.Ceiling(totalRegistros / (double)pageSize);
@@ -48,7 +48,6 @@ namespace Gestao_Escala.Services
         public async Task<Escala> CriarEscalaAsync(Escala escala)
         {
             ValidarHorarios(escala);
-            await ValidarSobreposicaoAsync(escala);
 
             _context.Escala.Add(escala);
             await _context.SaveChangesAsync();
@@ -58,7 +57,6 @@ namespace Gestao_Escala.Services
         public async Task AtualizarEscalaAsync(Escala escala)
         {
             ValidarHorarios(escala);
-            await ValidarSobreposicaoAsync(escala);
 
             _context.Entry(escala).State = EntityState.Modified;
             
@@ -92,20 +90,9 @@ namespace Gestao_Escala.Services
                 throw new Exception("O intervalo deve estar dentro do período da jornada.");
         }
 
-        private async Task ValidarSobreposicaoAsync(Escala escala)
+        private async Task<bool> EscalaExiste(int id)
         {
-            if (escala.MotoristaId.HasValue)
-            {
-                bool sobreposto = await _context.Escala.AnyAsync(e =>
-                    e.Id != escala.Id &&
-                    e.MotoristaId == escala.MotoristaId &&
-                    e.Data == escala.Data &&
-                    ((escala.HoraInicio >= e.HoraInicio && escala.HoraInicio < e.HoraFinal) ||
-                     (escala.HoraFinal > e.HoraInicio && escala.HoraFinal <= e.HoraFinal)));
-
-                if (sobreposto)
-                    throw new Exception("Este motorista já possui uma escala agendada para este horário.");
-            }
+            return await _context.Escala.AnyAsync(e => e.Id == id);
         }
     }
 }
