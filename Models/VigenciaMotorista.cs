@@ -4,6 +4,7 @@ namespace Gestao_Escala.Models
     {
         public int Id { get; set;}
         public DateOnly Data { get; set; }
+        public bool Status { get; set; } = true;
 
         public int VigenciaEscalaId { get; set; }
         public VigenciaEscala? VigenciaEscala { get; set; }

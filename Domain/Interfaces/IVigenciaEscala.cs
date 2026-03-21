@@ -6,8 +6,8 @@ namespace Gestao_Escala.interfaces
     {
         Task<PaginacaoResultado<VigenciaEscala>> ListarTudoAsync(int page, int pageSize);
         Task<VigenciaEscala?> ObterPorIdAsync(int id);
-        Task<VigenciaEscala> CriarVigenciaAsync (VigenciaEscala vigenciaEscala);
-        Task AtualizarVigenciaAsync (VigenciaEscala vigenciaEscala);
-        Task<bool> DeletarEscalaAsync(int id);
+        Task<VigenciaEscala> CriarVigenciaEscalaAsync (VigenciaEscala vigenciaEscala);
+        Task AtualizarVigenciaEscalaAsync (VigenciaEscala vigenciaEscala);
+        Task<bool> DeletarVigenciaEscalaAsync(int id);
     }
 }
