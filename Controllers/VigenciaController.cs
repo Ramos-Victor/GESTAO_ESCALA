@@ -8,9 +8,9 @@ namespace Gestao_Escala.Controller
     [Route("api/[controller]")]
     public class VigenciaController : ControllerBase
     {
-        private readonly IVigencia _vigenciaService;
+        private readonly IVigenciaService _vigenciaService;
 
-        public VigenciaController(IVigencia Vigencia)
+        public VigenciaController(IVigenciaService Vigencia)
         {
             _vigenciaService = Vigencia;
         }

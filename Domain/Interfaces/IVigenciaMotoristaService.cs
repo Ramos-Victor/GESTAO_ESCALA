@@ -1,13 +1,13 @@
 using Gestao_Escala.Models;
-
-namespace Gestao_Escala.interfaces
+namespace Gestao_Escala.Domain.interfaces
 {
     public interface IVigenciaMotorista
     {
-        Task<PaginacaoResultado<VigenciaMotorista>> ListarTudoAsync(int page, int pageSize);
-        Task<VigenciaMotorista?> ObterPorIdAsync (int id);
-        Task<VigenciaMotorista> CriarVigenciaMotoristaAsync(VigenciaMotorista vigenciaMotorista);
+        Task<IEnumerable<VigenciaMotorista>> ListarPorVigenciaAsync(int vigenciaId);
+        Task<VigenciaMotorista?> ObterPorDataAsync(int vigenciaId, DateOnly data);
+        Task<VigenciaMotorista?> ObterPorIdAsync(int id);
+        Task<VigenciaMotorista> CriarVigenciaMotoristaAsync(int vigenciaId, VigenciaMotorista vigenciaMotorista);
         Task AtualizarVigenciaMotoristaAsync(VigenciaMotorista vigenciaMotorista);
-        Task<bool> DeletarVigenciaMotoristaAsync(int id);        
+        Task<bool> DeletarVigenciaMotoristaAsync(int id);
     }
 }

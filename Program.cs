@@ -4,6 +4,8 @@ using Gestao_Escala.Services;
 using Gestao_Escala.Domain.Interfaces;
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Gestao_Escala.Domain.interfaces;
+using Gestao_Escala.interfaces;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +22,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddScoped<IMotoristaService, MotoristaService>();
+builder.Services.AddScoped<IVigenciaService, VigenciaService>();
+builder.Services.AddScoped<IVigenciaMotorista, VigenciaMotoristaService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

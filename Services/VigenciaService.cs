@@ -5,7 +5,7 @@ using Gestao_Escala.interfaces;
 
 namespace Gestao_Escala.Services
 {
-    public class VigenciaService : IVigencia
+    public class VigenciaService : IVigenciaService
     {
         private readonly AppDbContext _context;
 

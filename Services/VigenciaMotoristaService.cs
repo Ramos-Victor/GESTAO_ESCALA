@@ -1,8 +1,7 @@
 using Gestao_Escala.Data;
 using Gestao_Escala.Models;
 using Microsoft.EntityFrameworkCore;
-using Gestao_Escala.Domain.Interfaces;
-using Gestao_Escala.interfaces;
+using Gestao_Escala.Domain.interfaces;
 
 namespace Gestao_Escala.Services
 {
@@ -15,55 +14,71 @@ namespace Gestao_Escala.Services
             _context = context;
         }
 
-        public async Task<PaginacaoResultado<VigenciaMotorista>> ListarTudoAsync(int page, int pageSize)
+        public async Task<IEnumerable<VigenciaMotorista>> ListarPorVigenciaAsync(int vigenciaId)
         {
-            page = Math.Max(1, page);
+            return await _context.VigenciaMotorista
+                .Include(vm => vm.Motorista)
+                .AsNoTracking()
+                .Where(vm => vm.VigenciaId == vigenciaId && vm.Status == true)
+                .OrderBy(vm => vm.Data)
+                .ToListAsync();
+        }
 
-            var query = _context.VigenciaMotorista.AsNoTracking().Where(e=> e.Status == true).OrderBy(e=> e.Id);
-
-            var totalRegistros = await query.CountAsync();
-            var totalPaginas = (int)Math.Ceiling(totalRegistros/ (double)pageSize);
-
-            page = Math.Min(page, Math.Max(1, totalPaginas));
-
-            var dados = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            return new PaginacaoResultado<VigenciaMotorista>
-            {
-                Dados = dados,
-                PaginaAtual = page,
-                TotalPaginas = totalPaginas,
-                TotalRegistros = totalRegistros
-            };
+        public async Task<VigenciaMotorista?> ObterPorDataAsync(int vigenciaId, DateOnly data)
+        {
+            return await _context.VigenciaMotorista
+                .Include(vm => vm.Motorista)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(vm => vm.VigenciaId == vigenciaId
+                                        && vm.Data == data
+                                        && vm.Status == true);
         }
 
         public async Task<VigenciaMotorista?> ObterPorIdAsync(int id)
         {
-            return await _context.VigenciaMotorista.FirstOrDefaultAsync(e=> e.Id== id);
+            return await _context.VigenciaMotorista
+                .Include(vm => vm.Motorista)
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<VigenciaMotorista> CriarVigenciaMotoristaAsync(VigenciaMotorista VigenciaMotorista)
+        public async Task<VigenciaMotorista> CriarVigenciaMotoristaAsync(int vigenciaId, VigenciaMotorista vigenciaMotorista)
         {
-            _context.VigenciaMotorista.Add(VigenciaMotorista);
+            // Valida se a vigência existe
+            var vigencia = await _context.Vigencia.FindAsync(vigenciaId);
+            if (vigencia == null)
+                throw new Exception("Vigência não encontrada.");
+
+            // Valida se a data está dentro do período da vigência
+            if (vigenciaMotorista.Data < vigencia.DataInicio || vigenciaMotorista.Data > vigencia.DataFim)
+                throw new Exception("Data fora do período de vigência.");
+
+            // Valida se já existe motorista nesse dia
+            var jaExiste = await _context.VigenciaMotorista
+                .AnyAsync(vm => vm.VigenciaId == vigenciaId
+                             && vm.Data == vigenciaMotorista.Data
+                             && vm.Status == true);
+            if (jaExiste)
+                throw new Exception("Já existe um motorista atribuído para essa data.");
+
+            vigenciaMotorista.VigenciaId = vigenciaId;
+            _context.VigenciaMotorista.Add(vigenciaMotorista);
             await _context.SaveChangesAsync();
-            return VigenciaMotorista;
+            return vigenciaMotorista;
         }
 
-        public async Task AtualizarVigenciaMotoristaAsync(VigenciaMotorista VigenciaMotorista)
+        public async Task AtualizarVigenciaMotoristaAsync(VigenciaMotorista vigenciaMotorista)
         {
-            _context.Entry(VigenciaMotorista).State = EntityState.Modified;
+            _context.Entry(vigenciaMotorista).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeletarVigenciaMotoristaAsync(int id)
         {
-            var VigenciaMotorista = await _context.VigenciaMotorista.FindAsync(id);
-            if(VigenciaMotorista == null) return false;
-
-            VigenciaMotorista.Status = false;
+            var vigenciaMotorista = await _context.VigenciaMotorista.FindAsync(id);
+            if (vigenciaMotorista == null) return false;
+            vigenciaMotorista.Status = false;
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
 }

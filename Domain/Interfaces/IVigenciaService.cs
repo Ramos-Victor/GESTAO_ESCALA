@@ -2,7 +2,7 @@ using Gestao_Escala.Models;
 
 namespace Gestao_Escala.interfaces
 {
-    public interface IVigencia
+    public interface IVigenciaService
     {
         Task<PaginacaoResultado<Vigencia>> ListarTudoAsync(int page, int pageSize);
         Task<Vigencia?> ObterPorIdAsync(int id);
